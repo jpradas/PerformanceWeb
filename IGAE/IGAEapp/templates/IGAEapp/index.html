@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" style="background-color: white">
+    <head>
+        {% load static %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static 'index.css' %}">
+        <title>SGRW - Login</title>
+    </head>
+    <body style="background-color: white">
+        {% if msg %}
+        {% if type == 'danger' %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">
+        {% else %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">  
+        {% endif %}    
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        
+        {% endif %}
+        <div style="margin-left: 30%; margin-right: 30%; margin-top: 60px; border-radius: 10px; background-color: white;">
+            <!-- <div style="width: 100%; display: flex">
+                <h1 class="display-4" style="margin-left: auto; margin-right: auto; margin-top: 10px;">SGRW <small class="text-muted">Login</small></h1>
+            </div> -->
+            <div style="display: flex; justify-content: space-between; margin-top: 300px;">
+                <div style="width: 100%; margin-top: 30px;">
+                    <form class="px-4 py-3" method="POST" action="user_login">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <!-- <label for="username">Username</label> -->
+                            <input type="text" class="form-control" name="username" placeholder="Username" required>
+                        </div>
+                        <div class="form-group">
+                            <!-- <label for="password">Password</label> -->
+                            <input type="password" class="form-control" name="password" placeholder="Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-info" id="signin">Sign in</button>
+                    </form>
+                </div>
+                <div style="margin-left: 20px;">
+                    <img src="{% static 'images/descarga.png' %}" alt="Sogeti">
+                </div>
+                
+                <!-- <div class="dropdown-divider"></div> -->
+            </div>
+        </div>
+        
+
+
+
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>  
+    </body>
+</html>

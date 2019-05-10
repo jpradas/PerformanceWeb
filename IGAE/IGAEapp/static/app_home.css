@@ -1,0 +1,197 @@
+/* #bar-chart.dc-chart .axis.y{ 
+    opacity: 0.0;
+}*/
+
+#txs-row-chart.dc-chart g.row text {
+    fill: black;
+}
+
+.loader{
+    justify-items: center;
+    margin-top: 50px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: 50px;
+    border: 12px solid #f3f3f3; /* Light grey */
+    border-top: 12px solid #0070ad; /* Blue */
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#gif{
+    display: flex;
+    justify-content: center;
+}
+
+#gif img{
+    margin-top: 150px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: 50px;
+}
+
+#selectScenarios {
+    background-color: white;
+    color: #0070ad;
+    border-color: #0070ad;
+    border-radius: 20px;
+}
+
+#selectScenarios:hover {
+    color: white;
+    background-color: #0070ad;
+}
+
+.nav-link {
+    color: #0070ad;
+}
+
+.display-4 {
+    color: #0070ad;
+}
+
+.rounded-circle {
+    color: #0070ad;
+    /* border-color: #0070ad; */
+    border: none;
+}
+
+.rounded-circle:hover {
+    background-color: #0070ad;
+    color: #ffffff;
+}
+
+#reset-btn {
+    color: #0070ad;
+    outline: none;
+    box-shadow: none !important;
+    background-color: white;
+    border: none;
+    border-radius: 20px;
+}
+
+#reset-btn:hover {
+   background-color: #dee2e6;
+}
+
+.card-header {
+    background-color: white;
+    border: none;
+}
+
+#accordion-full-card {
+    border: none;
+    margin-left: -20px;
+}
+
+#scenarios-list li{
+    border: none;
+    border-color: #dee2e6;
+    border-width: 1px;
+}
+
+.scenarios-body {
+    border-right: none;
+    border-bottom: none;
+    border-top: none;
+}
+
+/* #scenarios-main-btn {
+    color: #0070ad;
+    outline: none;
+    box-shadow: none !important;
+    background-color: white;
+    border: none;
+    border-radius: 20px;
+}
+
+#scenarios-main-btn:hover {
+    border-bottom-color: #dee2e6;
+} */
+
+.btn.btn-light {
+    color: #0070ad;
+    background-color: white;
+    border: solid 0.5px;
+    border-color: white;
+    border-radius: 20px;
+    outline: none;
+    box-shadow: none !important;
+}
+
+.btn.btn-light:active {
+    box-shadow: 0 5px 15px rgba(0,0,0,0);
+}
+
+.btn.btn-light:hover {
+    background-color: #dee2e6;
+}
+
+#accordionscenarios{
+    margin-top: -20px;
+}
+
+#txs-row-chart {
+    color: black;
+}
+
+#avg-tx-time-chart.dc-chart .axis.x .tick{
+    opacity: 0.0;
+}
+
+#add_scenario {
+    color: #0070ad;
+    margin-left: 25px;
+    margin-top: -10px;
+    transition: border-bottom-color 0.5s;
+}
+
+#add_scenario:hover {
+    text-decoration: none;
+    border-bottom: solid 0.5px;
+    border-bottom-color: #0070ad;
+}
+
+#username-to-add {
+    height: 38px;
+    outline: none;
+    border: solid 0.5px #dee2e6;
+    border-radius: 20px;
+    padding-left: 15px;
+    margin-left: 10px;
+    margin-right: 7px;
+    margin-top: 5px;
+    margin-bottom: -10px;
+    box-shadow: none !important;
+    transition: border-color 0.5s;
+}
+
+#username-to-add:active {
+    box-shadow: 0 5px 15px rgba(0,0,0,0);
+}
+
+#username-to-add:hover {
+    border-color: #0070ad;
+}
+
+#submit-btn {
+    margin-right: 10px;
+    margin-top: 5px;
+    margin-bottom: -10px;
+    border: solid 0.5px #0070ad;
+    border-radius: 20px;
+    color: #0070ad;
+    background-color: white;
+}
+
+#submit-btn:hover {
+    color: white;
+    background-color: #0070ad;
+}

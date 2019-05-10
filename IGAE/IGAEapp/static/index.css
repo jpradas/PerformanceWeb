@@ -1,0 +1,32 @@
+#signin {
+    color: #0070ad;
+    background-color: white;
+    border: solid 0.5px;
+    border-radius: 30px;
+    border-color: #dee2e6;
+    transition: border-color 0.5s;
+}
+
+#signin:hover {
+    border-color: #0070ad;
+    box-shadow: #0070ad;
+}
+
+.form-control {
+    border: none;
+    outline: none;
+    border-bottom: solid;
+    border-width: 0.5px;
+    border-color: #dee2e6;
+    border-radius: 0px;
+    transition: border-bottom-color 0.5s;
+    box-shadow: none !important;
+}
+
+.form-control:active {
+    box-shadow: 0 5px 15px rgba(0,0,0,0);
+}
+
+.form-control:hover {
+    border-bottom-color: #0070ad;
+}

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        {% load static %}
+        <meta http-equiv="content-type" content="text/html; charset=UTF8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <title>{{ app.Name }}</title>
+        <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+        <script src="{% static "d3.min.js" %}"></script>
+        <script type="text/javascript" src="https://rawgithub.com/NickQiZhu/dc.js/master/web/js/crossfilter.js"></script>
+        <script src="{% static "dc.min.js" %}"></script>
+        <link rel="stylesheet" href="{% static "dc.css" %}" type="text/css" media="screen" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="{% static "app_home.css" %}">
+        <link rel="stylesheet" type="text/css" href="{% static "loading.css" %}">
+        <link rel="stylesheet" type="text/css" href="{% static "loading-btn.css" %}">
+    </head>
+    <body>
+
+        <div id="container" style="margin-left: 9%; margin-right: 9%; background-color: white;  height: 100%; margin-top: 30px;">
+            {% if user.is_authenticated %}
+            {% if msg %}
+                {% if type == 'danger' %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">
+                {% else %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">  
+                {% endif %}    
+                    {{ msg }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            <!-- <div style="display: flex; margin-left: 20px; ">
+                <a class="btn btn-outline-secondary rounded-circle" href="/sgrw/{{ user.username }}" style="margin-top: auto; margin-bottom: auto;">
+                    <i class="fa fa-chevron-left"></i>
+                </a>
+                <h5 class="display-3" style="margin-left: 10px; ">{{ app.Name }}</h5> 
+                <span class="display-3" style="margin-left: 10px;">{{ app.Name }}</span>
+            </div> -->
+            <!-- <nav id="navegador" class="navbar navbar-light bg-light">
+                <div style="display: flex; margin-left: 20px; ">
+                    <a class="btn btn-outline-secondary rounded-circle" href="/sgrw/{{ user.username }}" style="margin-top: auto; margin-bottom: auto;">
+                        <i class="fa fa-chevron-left"></i>
+                    </a>
+                     <a class="navbar-brand" href="#">{{ app.Name }}</a> 
+                    <h5 class="display-4" style="margin-left: 10px; ">{{ app.Name }}</h5>
+                </div>
+            </nav> -->
+            <ul class="nav" style="display: flex; ">
+                <li class="nav-item">
+                    <div style="display: flex;">
+                        <a class="btn btn-outline-secondary rounded-circle" href="/sgrw/{{ user.username }}" style="margin-top: auto; margin-bottom: auto;">
+                            <i class="fa fa-chevron-left"></i>
+                        </a>
+                        <a href="{% url 'SGRW:user_home' user.username %}"><img src="{% static 'images/descarga.png' %}" alt="Sogeti" style="height: 100px; margin-left: 15px;"></a>
+                        
+                    </div>
+                </li>
+                <div style="margin-left: auto; display: block;">
+                    <div style="display: flex;">
+                        <h5 class="display-4" style="margin-top: -15px; margin-left: auto;">{{ app.Name }}</h5>
+                    </div>
+                    <div style="display: flex; margin-right: -10px;">
+                        <li class="nav-item dropdown" style="font-size: 20px; margin-left: 10px;">
+                            <div>
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-hashpopup="true" aria-expanded="false">Apps</a>
+                                <div class="dropdown-menu">
+                                    {% if numApps > 1 and user.app_set.all %}
+                                        {% for app_f in user.app_set.all %}
+                                            {% if app_f.Name != app.Name %}
+                                                <a href="{% url 'SGRW:app_home' user.username app_f.Name %}" class="dropdown-item">{{ app_f.Name }}</a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <a class="dropdown-item" href="#" >No more Apps</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                        {% if user.is_staff %}
+                        <li class="nav-item dropdown" style="font-size: 20px; margin-left: -10px;">
+                            <div>
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-hashpopup="true" aria-expanded="false">Add user</a>
+                                <div class="dropdown-menu">
+                                    <form style="display: flex; margin-bottom: 15px; width: 100%;" method="POST" action="{% url 'SGRW:add_user_to_app' app.Name %}">
+                                        {% csrf_token %}
+                                        <input type="text" id="username-to-add" placeholder="Enter username" name="username">
+                                        <button type="submit" class="btn btn-primary" id="submit-btn" >Add</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item" style="margin-left: -10px;">
+                            <div style="display: flex; align-content: flex-end; margin-top: -9px;">
+                                <img src="{% static 'images/userIcon.png' %}" alt="{{ user.username }}" style="width: 55px; height: 55px; margin-right: -20px;">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size: 20px; color: #0070ad; margin-top: 10px;">
+                                    {{ user.username }}
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="/sgrw/user_logout">Logout</a>
+                                </div>
+                            </div>
+                        </li>
+                    </div>
+                </div>
+            </ul>
+            
+            <div class="dropdown-divider" style="width: 100%; margin-bottom: 50px;"></div>
+            <div style="display: flex;">
+                <div id="scenario-list" style="margin-left: 20px; margin-right: 10px; width: 250px;">
+                    <a href="javascript:document.compositeLine.filterAll();document.compositeBar.filterAll();document.rowchart.filterAll();document.piechart.filterAll();dc.redrawAll();" class="btn btn-light" id="reset-btn" style="margin-bottom: 20px; margin-top: -20px;">Reset</a>
+                    {% if app.scenario_set.all %}    
+                        <div class="accordion" id="accordionscenarios">
+                            <div class="card" id="accordion-full-card">
+                                <div class="card-header" id="scenariosHeading">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-light collapsed" id="scenarios-main-btn" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                            Scenarios
+                                        </button>
+                                    </h5>
+                                </div>
+                                <div id="collapseOne" class="collapse" aria-labelledby="scenariosHeading" data-parent="#accordionscenarios">
+                                    <div class="card-body">
+                                        <div class="accordion collapsed" id="accordion-div">
+                                            {% if user.is_staff %}
+                                                <a href="{% url 'SGRW:add_scenario' user.username app.Name %}" id="add_scenario">Add scenario</a>
+                                            {% endif %}
+                                            {% for scenario in scenarios %}
+                                            <div class="card scenarios-body">
+                                                <div class="card-header" id="{{ scenario.Name }}heading">
+                                                    <h5 class="mb-0">
+                                                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#{{ scenario.Name }}body" aria-expanded="true" aria-controls="{{ scenario.Name }}body">
+                                                            {{ scenario.Name }}
+                                                        </button>
+                                                    </h5>
+                                                </div>
+                                                <div id="{{ scenario.Name }}body" class="collapse" aria-labelledby="{{ scenario.Name }}heading" data-parent="#accordion-div">
+                                                    <div class="card-body">
+                                                        <div class="list-group" id="scenarios-list">
+                                                            <script>
+                                                                function mark_all(source){
+                                                                    let id = source.id;
+                                                                    scenario = id.split(".")[0];
+                                                                    scenarios = document.getElementsByName(scenario);
+                                                                    for(let i = 0; i<scenarios.length; i++){
+                                                                        scenarios[i].checked = source.checked;
+                                                                    }
+                                                                }
+                
+                                                                function checkSelectAll(source){
+                                                                    let id = source.id;
+                                                                    scenario = id.split(".")[0];
+                                                                    select_all = document.getElementById(scenario+".Select-all");
+                                                                    if(select_all.checked){
+                                                                        select_all.checked = false;
+                                                                    }
+                                                                }
+                                                            </script>
+                                                            <li class="list-group-item">
+                                                                <div>
+                                                                    <input type="checkbox" class="custom-control-input" onclick="mark_all(this)" id="{{scenario.Name}}.Select-all">
+                                                                    <label class="custom-control-label" for="{{scenario.Name}}.Select-all">Select all</label>
+                                                                </div>
+                                                            </li>
+                                                            {% for tx in scenario.txs %}
+                                                            <li class="list-group-item">
+                                                                <div>
+                                                                    <input onclick="checkSelectAll(this)" type="checkbox" class="custom-control-input" id="{{scenario.Name}}.{{tx.Name}}" name="{{scenario.Name}}">
+                                                                    <label class="custom-control-label" for="{{scenario.Name}}.{{tx.Name}}">{{tx.Name}}</label>
+                                                                </div>
+                                                            </li>
+                                                            {% endfor %}
+                
+                                                        </div>            
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <img id="gif" src="{% static "images/favicon.gif" %}" width="30" height="30"> -->
+                        <button id="selectScenarios" onclick="document.getSelectedValues()" class="btn btn-primary ld-ext-right" value="Select" style="margin-bottom: 20px; margin-top: 20px;"><div class="ld ld-ring ld-spin"></div>Select</button>
+                        <!--<button id="selectScenarios" onclick="document.getSelectedValues()" class="btn btn-primary ld-ext-right" value="Select" style="margin-bottom: 20px; margin-top: 20px;"><div style="background: loader;"></div>Select</button>-->
+                        <div class="dropdown-divider" style="width: 100%; margin-bottom: 20px;"></div>
+                        <div id="txs-pie-chart" style="margin-bottom: 20px;"></div>
+                        <div id="txs-row-chart" style="margin-bottom: 50px;"></div>
+                    
+                    {% endif %}
+                </div>
+                <div style="display: block; margin-left: 10px; width: 100%;">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist" style="display: flex;">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="charts-tab" data-toggle="tab" href="#charts" role="tab" aria-controls="charts" aria-selected="true">Charts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="avg-charts-tab" data-toggle="tab" href="#avg-charts" role="tab" aria-controls="avg-charts" aria-selected="false">Avg charts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="hits-second-tab" data-toggle="tab" href="#hits-second" role="tab" aria-controls="hits-second" aria-selected="false">Another tab</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent" style="display: block; margin-left: 50px;">
+                        <div class="tab-pane fade show active" id="charts" role="tabpanel" aria-labelledby="charts-tab">
+                            <div id="charts" style="margin-top: 40px;">
+                                <!-- <div class="loader"></div> -->
+                                <div id="gif">
+                                    <img src="{% static "images/loader.gif" %}" width="60" height="60">
+                                </div>
+                                <div id="box-test"></div>
+                                <div id='chart'></div>
+                                <div id='bar-chart'></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="avg-charts" role="tabpanel" aria-labelledby="avg-charts-tab">
+                            <div id="charts-2" style="margin-top: 40px;">
+                                <div id="avg-tx-time-chart"></div>
+                                
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="hits-second" role="tabpanel" aria-labelledby="hits-second-tab">
+                            <div id="charts-3" style="margin-top: 40px;">
+                                <span>En construccion...</span>
+                                <!-- <div id='hpsecond'>hits-per-second</div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+           
+            
+
+
+
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+            <script src="{% static "chart.js" %}"></script>
+            {% endif %}
+        </div>
+        
+    </body>    
+</html>

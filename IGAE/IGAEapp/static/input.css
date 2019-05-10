@@ -1,0 +1,9 @@
+.custom-file-label.selected:lang(en)::after {
+    content: "Browse" !important;
+    color: black;
+}
+
+.custom-file-label.invalid:lang(en)::after{
+    content: "Incorrect format (only json or jtl)" !important;
+    color: red;
+}

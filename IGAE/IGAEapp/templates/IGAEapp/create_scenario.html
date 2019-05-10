@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en" style="background-color: white;">
+    <head>
+        {% load static %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static "input.css" %}">
+        <link rel="stylesheet" href="{% static "create_scenario.css" %}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="{% static "loading.css" %}">
+        <link rel="stylesheet" type="text/css" href="{% static "loading-btn.css" %}">
+        <title>SGRW - creating scenario</title>
+    </head>
+    <body style="background-color: white;">
+        {% if msg %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px; opacity: 50%;">
+           
+            {{ msg }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %} 
+        <div style="margin-top: 45px; margin-left: 30%; margin-right: 30%; display: flex;">
+            
+            <a class="btn btn-outline-secondary rounded-circle" href="javascript: history.go(-1)" style="margin-top: auto; margin-bottom: auto;">
+                <em class="fa fa-chevron-left"></em>
+            </a>
+            <h5 style="margin-left: 15px; color: #0070ad;" class="display-4" >{{ app }} - Adding scenario</h5>
+     
+        </div>
+        <div style="margin-left: 30%; margin-right: 30%; background-color: white; height: 100%; margin-top: 15px;">
+            <ul class="nav nav-tabs" id="myTab" role="tablist" style="display: flex;">
+                <li class="nav-item">
+                    <a class="nav-link active" id="jmeter-tab" data-toggle="tab" href="#jmeter" role="tab" aria-controls="jmeter" aria-selected="true">Jmeter</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="load-runner-tab" data-toggle="tab" href="#load-runner" role="tab" aria-controls="load-runner" aria-selected="false">Load Runner</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent" style="display: block; margin-left: 50px;">
+                <div class="tab-pane fade show active" id="jmeter" role="tabpanel" aria-labelledby="jmeter-tab">
+                    <div id="jmeter" style="margin-top: 15px;">
+                        <form method="POST" action="{% url 'SGRW:scenario_create_jmeter' user.username app %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="alert alert-info" role="alert" style="margin-top: 25px; border-left: solid 3px #0070ad; border-right: solid 3px #0070ad;">
+                                <strong>Note: </strong>Operation can delay over 10 secs depending in how long summary-results file is.
+                            </div>
+                            <label for="input-group mb-3">summary-results.jtl</label>
+                            <div class="input-group mb-3" style="width: 100%;">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupFileJmeter">Upload</span>
+                                </div>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="inputGroupFileJmeter01" name="inputGroupFileJmeter01" aria-describedby="inputGroupFileJmeter" required>
+                                    <label class="custom-file-label" for="inputGroupFileJmeter01">Choose file</label>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider" style="width: 100%; margin-top: 20px; margin-bottom: 15px;"></div>
+                            <div>
+                                <button type="submit" class="btn btn-primary" id="submit-btn-jmeter">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="load-runner" role="tabpanel" aria-labelledby="load-runner-tab">
+                    <div id="load-runner" style="margin-top: 10px;">
+                        <form method="POST" action="{% url 'SGRW:scenario_create_lr' user.username app %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="alert alert-warning" role="alert" style="margin-top: 25px; border-left: solid 3px #856404; border-right: solid 3px #856404;">
+                                <strong>Attention: </strong>Make sure transactions file is in good state.
+                            </div>
+                            <!-- <div class="dropdown-divider" style="width: 100%; margin-bottom: -10px;"></div> -->
+                            <label for="input-group mb-3">Transactions json</label>
+                            <div class="input-group mb-3" style="width: 100%;">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+                                </div>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="inputGroupFile01" name="inputGroupFile01" aria-describedby="inputGroupFileAddon01" required>
+                                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                </div>
+                            </div>
+
+                            <label for="input-group mb-3">Vusers info json</label>
+                            <div class="input-group mb-3" style="width: 100%;">
+                                <div class="input-group-prepend">
+                                        <span class="input-group-text" id="inputGroupFileAddon02">Upload</span>
+                                    </div>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="inputGroupFile02" name="inputGroupFile02" aria-describedby="inputGroupFileAddon02" required>
+                                    <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider" style="width: 100%; margin-top: 20px; margin-bottom: 15px;"></div>
+                            <div>
+                                <button type="submit" class="btn btn-primary" id="submit-btn">Save</button>
+                            </div>
+                            
+                        </form>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="{% static "file_input.js" %}"></script>
+    </body>
+</html>

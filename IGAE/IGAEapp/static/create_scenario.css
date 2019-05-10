@@ -1,0 +1,33 @@
+.rounded-circle {
+    color: #0070ad;
+    /* border-color: #0070ad; */
+    border: none;
+}
+
+.rounded-circle:hover {
+    background-color: #0070ad;
+    color: #ffffff;
+}
+
+.btn.btn-primary{
+    color: #0070ad;
+    background-color: white;
+    border: solid 0.5px #0070ad;
+    border-radius: 20px;
+}
+
+.btn.btn-primary:hover {
+    color: white;
+    background-color: #0070ad;
+}
+
+.input-group-text {
+    background-color: #dee2e6;
+    border: solid 0.5px #dee2e6;
+    border-radius: 20px;
+}
+
+.custom-file-input {
+    border: solid 0.5px #dee2e6;
+    border-radius: 20px !important;
+}
