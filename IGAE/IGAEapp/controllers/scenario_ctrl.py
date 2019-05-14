@@ -256,9 +256,12 @@ def scenario_add(request, user_name, app_name):
     else:
         return redirect('/sgrw/' + str(request.user.username) + '/' + app_name)
 
-def set_response(transactions, users, sc, res):
+def set_response(transactions, users, sc, res, tr):
     for t in transactions:
-        res.append({"label": t.Name, "timestamp": t.Timestamp, "avg_time": t.Avg_time, "txs_count": t.Txs_count, "scenario": sc, "type": "transaction"})
+        label = t.Name
+        if tr == "Select-all":
+            label = tr
+        res.append({"label": label, "timestamp": t.Timestamp, "avg_time": t.Avg_time, "txs_count": t.Txs_count, "scenario": sc, "type": "transaction"})
     if users is not None:
         for u in users:
             res.append({"label": u.Name, "timestamp": u.Timestamp, "num_users": u.Num_users, "scenario": sc, "type": "users"})
@@ -277,28 +280,34 @@ def scenario_search(request):
 
         ur = list()
         t = list()
+        sa = list()
+        num_scenarios = list()
+        transactions_name = list()
         for key in trans:
             data = key.split(".")
             sc = data[0]
             tr = data[1]
             users = None
+            if sc not in num_scenarios:
+                num_scenarios.append(sc)
+            if key not in transactions_name:
+                transactions_name.append(key)
             try:
-                scenario = app.scenario_set.get(Name=sc)
-                print(tr)
-                if tr != "Select-all":
-                    print("primero")
-                    transactions = scenario.transaction_set.filter(Name=tr)
-                else:
-                    print("segundo")
-                    transactions = scenario.transaction_set.all()
-                if sc not in ur:
-                    users = scenario.vuserinfo_set.order_by('Timestamp')
-                    ur.append(sc)
-                set_response(transactions, users, sc, t)
+                if sc not in sa:
+                    scenario = app.scenario_set.get(Name=sc)
+                    if tr != "Select-all":
+                        transactions = scenario.transaction_set.filter(Name=tr)
+                    else:
+                        sa.append(sc)
+                        transactions = scenario.transaction_set.all()
+                    if sc not in ur:
+                        users = scenario.vuserinfo_set.order_by('Timestamp')
+                        ur.append(sc)
+                    set_response(transactions, users, sc, t, tr)
             except Exception as e: 
                 print(e)
 
-        return JsonResponse({"list": t})
+        return JsonResponse({"scenarios": num_scenarios, "transactionsName": transactions_name, "transactions": t})
     else:
         return JsonResponse({"Error":"Insufficient privileges"})
 
