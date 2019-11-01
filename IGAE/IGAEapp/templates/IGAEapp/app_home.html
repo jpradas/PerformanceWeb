@@ -4,7 +4,7 @@
         {% load static %}
         <meta http-equiv="content-type" content="text/html; charset=UTF8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static "bootstrap.min.css" %}" />
         <title>{{ app.Name }}</title>
         <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
         <script type="text/javascript" src="{% static "promise-polyfill.js" %}"></script>
@@ -13,26 +13,27 @@
         <script type="text/javascript" src="{% static "crossfilter.js" %}"></script>
         <script type="text/javascript" src="{% static "dc.js" %}"></script>
         <link rel="stylesheet" href="{% static "dc.css" %}" type="text/css" media="screen" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="{% static "font-awesome.min.css" %}">
         <link rel="stylesheet" href="{% static "app_home.css" %}">
         <link rel="stylesheet" type="text/css" href="{% static "loading.css" %}">
         <link rel="stylesheet" type="text/css" href="{% static "loading-btn.css" %}">
     </head>
     <body>
         <div id="container" style="margin-left: 9%; margin-right: 9%; background-color: white;  height: 100%; margin-top: 30px;">
-            {% if user.is_authenticated %}
             {% if msg %}
-                {% if type == 'danger' %}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">
-                {% else %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">  
-                {% endif %}    
-                    {{ msg }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+            {% if type == 'danger' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">
+            {% else %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert" style="position: absolute; top: 20px; right: 15px; width: 30%; margin-left: auto; margin-right: 20px; margin-bottom: -10px;">  
+            {% endif %}    
+                {{ msg }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             {% endif %}
+            {% if user.is_authenticated %}
+            
             <!-- <div style="display: flex; margin-left: 20px; ">
                 <a class="btn btn-outline-secondary rounded-circle" href="/sgrw/{{ user.username }}" style="margin-top: auto; margin-bottom: auto;">
                     <i class="fa fa-chevron-left"></i>
@@ -112,23 +113,26 @@
             <div class="dropdown-divider" style="width: 100%; margin-bottom: 50px;"></div>
             <div style="display: flex;">
                 <div id="scenario-list" style="margin-left: 20px; margin-right: 10px; width: 250px;">
-                    <a href="javascript:document.compositeLine.filterAll();document.compositeBar.filterAll();document.rowchart.filterAll();document.piechart.filterAll();dc.redrawAll();" class="btn btn-light" id="reset-btn" style="margin-bottom: 20px; margin-top: -20px;">Reset</a>
+                    <a href="javascript:document.compositeLine.filterAll();document.compositeBar.filterAll();document.scenariosChart.filterAll();document.piechart.filterAll();document.avgChart.filterAll();dc.redrawAll();" class="btn btn-light" id="reset-btn" style="margin-bottom: 20px; margin-top: -20px;">Reset</a>
+                    {% if user.is_staff %}
+                    <div>
+                        <a href="{% url 'SGRW:add_scenario' user.username app.Name %}" id="add_scenario">Add scenario</a>
+                    </div>
+                    {% endif %}
                     {% if app.scenario_set.all %}    
                         <div class="accordion" id="accordionscenarios">
                             <div class="card" id="accordion-full-card">
                                 <div class="card-header" id="scenariosHeading">
                                     <h5 class="mb-0">
-                                        <button class="btn btn-light collapsed" id="scenarios-main-btn" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                        <button class="btn btn-light" id="scenarios-main-btn" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                                             Scenarios
                                         </button>
                                     </h5>
                                 </div>
+                                
                                 <div id="collapseOne" class="collapse" aria-labelledby="scenariosHeading" data-parent="#accordionscenarios">
                                     <div class="card-body">
-                                        <div class="accordion collapsed" id="accordion-div">
-                                            {% if user.is_staff %}
-                                                <a href="{% url 'SGRW:add_scenario' user.username app.Name %}" id="add_scenario">Add scenario</a>
-                                            {% endif %}
+                                        <div class="accordion collapsed" id="accordion-div">      
                                             {% for scenario in scenarios %}
                                             <div class="card scenarios-body">
                                                 <div class="card-header" id="{{ scenario.Name }}heading">
@@ -136,7 +140,30 @@
                                                         <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#{{ scenario.Name }}body" aria-expanded="true" aria-controls="{{ scenario.Name }}body">
                                                             {{ scenario.Name }}
                                                         </button>
+                                                        {% if user.is_staff %}
+                                                        <button class="menu-button" style="background: none; border: none; outline: none;" data-toggle="modal" data-target="#{{scenario.Name}}modal" name="{{scenario.Name}}">
+                                                            <img src="{% static "images/trash_icon.png" %}" alt="">
+                                                        </button>
+                                                        {% endif %}
                                                     </h5>
+                                                </div>
+                                                <div class="modal fade" id="{{scenario.Name}}modal" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                          <div class="modal-header">
+                                                            <h5 class="modal-title" id="modalLabel">¿Estás seguro?</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                              <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                          </div>
+                                                          <div class="modal-body">
+                                                            ¿Quieres borrar el escenario {{scenario.Name}}?
+                                                          </div>
+                                                          <div class="modal-footer">
+                                                            <a type="button" class="btn btn-primary" href="/sgrw/{{app}}/{{scenario.Name}}/remove_scenario">Confirmar</a>
+                                                        </div>
+                                                        </div>
+                                                      </div>
                                                 </div>
                                                 <div id="{{ scenario.Name }}body" class="collapse" aria-labelledby="{{ scenario.Name }}heading" data-parent="#accordion-div">
                                                     <div class="card-body">
@@ -144,7 +171,7 @@
                                                             <script>
                                                                 function mark_all(source){
                                                                     let id = source.id;
-                                                                    scenario = id.split(".")[0];
+                                                                    scenario = id.split("$")[0];
                                                                     scenarios = document.getElementsByName(scenario);
                                                                     for(let i = 0; i<scenarios.length; i++){
                                                                         scenarios[i].checked = source.checked;
@@ -153,7 +180,7 @@
                 
                                                                 function checkSelectAll(source){
                                                                     let id = source.id;
-                                                                    scenario = id.split(".")[0];
+                                                                    scenario = id.split("$")[0];
                                                                     select_all = document.getElementById(scenario+".Select-all");
                                                                     if(select_all.checked){
                                                                         select_all.checked = false;
@@ -162,15 +189,15 @@
                                                             </script>
                                                             <li class="list-group-item">
                                                                 <div>
-                                                                    <input type="checkbox" class="custom-control-input" onclick="mark_all(this)" id="{{scenario.Name}}.Select-all">
-                                                                    <label class="custom-control-label" for="{{scenario.Name}}.Select-all">Select all</label>
+                                                                    <input type="checkbox" class="custom-control-input" onclick="mark_all(this)" id="{{scenario.Name}}$Select-all">
+                                                                    <label class="custom-control-label" for="{{scenario.Name}}$Select-all">Select all</label>
                                                                 </div>
                                                             </li>
                                                             {% for tx in scenario.txs %}
                                                             <li class="list-group-item">
                                                                 <div>
-                                                                    <input onclick="checkSelectAll(this)" type="checkbox" class="custom-control-input" id="{{scenario.Name}}.{{tx.Name}}" name="{{scenario.Name}}">
-                                                                    <label class="custom-control-label" for="{{scenario.Name}}.{{tx.Name}}">{{tx.Name}}</label>
+                                                                    <input onclick="checkSelectAll(this)" type="checkbox" class="custom-control-input" id="{{scenario.Name}}${{tx.Name}}" name="{{scenario.Name}}">
+                                                                    <label class="custom-control-label" for="{{scenario.Name}}${{tx.Name}}">{{tx.Name}}</label>
                                                                 </div>
                                                             </li>
                                                             {% endfor %}
@@ -203,7 +230,7 @@
                             <a class="nav-link" id="avg-charts-tab" data-toggle="tab" href="#avg-charts" role="tab" aria-controls="avg-charts" aria-selected="false">Avg charts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="hits-second-tab" data-toggle="tab" href="#hits-second" role="tab" aria-controls="hits-second" aria-selected="false">En construcción</a>
+                            <a class="nav-link" id="hits-second-tab" data-toggle="tab" href="#hits-second" role="tab" aria-controls="hits-second" aria-selected="false">Predicción</a>
                         </li>
                     </ul>
                     <div class="tab-content" id="myTabContent" style="display: block; margin-left: 50px;">
@@ -220,14 +247,13 @@
                         </div>
                         <div class="tab-pane fade" id="avg-charts" role="tabpanel" aria-labelledby="avg-charts-tab">
                             <div id="charts-2" style="margin-top: 40px;">
-                                <div id="avg-tx-time-chart"></div>
-                                
+                                <div id="avg-tx-time-chart"><h6 style="margin-left: 165px; margin-bottom: -20px;">Average time per transaction</h6></div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="hits-second" role="tabpanel" aria-labelledby="hits-second-tab">
-                            <div id="charts-3" style="margin-top: 40px;">
-                                <!-- <span>En construccion...</span> -->
-                                <img src="{% static "images/loader.gif" %}" width="60" height="60">
+                            <div id="charts-3">
+                                <!-- <span>En construccion...</span> -->   
+                                <img id="wheel" style="margin-top: 20px;" src="{% static "images/loader.gif" %}" width="60" height="60">
                                 <!-- <div id='hpsecond'>hits-per-second</div> -->
                             </div>
                         </div>
@@ -235,15 +261,13 @@
                 </div>
                 
             </div>
-           
-            
 
 
-
-            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+            <script src="{% static "jquery-3.3.1.slim.min.js" %}"></script>
+            <script src="{% static "popper.min.js" %}"></script>
+            <script src="{% static "bootstrap.min.js" %}"></script>
             <script type="text/javascript" src="{% static "chart.js" %}"></script>
+            <script type="text/javascript" src="{% static "app_home.js" %}"></script>
             {% endif %}
         </div>
         

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    var inc = 60; //son 10 segundos de precision, puede cambiarse si se quiere mas precision
+    var inc = 60; //segundos de precision, puede cambiarse si se quiere mas precision
    // var Vusers = [];
    // var Transactions = [];
     //var txs_avg_time = [];
@@ -12,16 +12,19 @@ document.addEventListener('DOMContentLoaded', function() {
     var txs_data_scenarios = {};
     //var vuser_colors = ['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b'];
     // var vuser_colors = ['#08306b','#08519c','#2171b5','#4292c6','#6baed6','#9ecae1','#c6dbef','#deebf7','#f7fbff'];
-    var vuser_colors = ['#0070AD','#1C2247','#162FE0','#B7672E','#E04D16','#19AAF9','#BA131D','#09BA99','#0AB3C4'];
+    // var vuser_colors = ['#0070AD','#1C2247','#162FE0','#B7672E','#E04D16','#19AAF9','#BA131D','#09BA99','#0AB3C4'];
+    var primary_colors = ['#0070ad','#12abdb','#2b0a3d','#ff304c','#95e616']
     //var txs_colors = ['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#b30000','#7f0000'];
     // var txs_colors = ['#7f0000','#b30000','#d7301f','#ef6548','#fc8d59','#fdbb84','#fdd49e','#fee8c8','#fff7ec'];
-    var txs_colors = ['#ef304c','#e725f8','#6f1623','#6f3840','#1978a2','#00a221','#bc3d13','#896052','#f2798b'];
+    var corporate_colors = ['#80b8d6','#00c37b','#0f999c','#cb2980','#7e39ba','#88d5ed','#15596b','#ff6327','#860864','#4701a7','#c8ff16','#01d1d0','#ff7e83','#6d64cc'];
     //var colors = ['#0070ad', '#2b0a3d', '#ef304c', '#12b3db', '#95e510', '#ececec', '#ffffff'];
     var compositeBar = dc.compositeChart("#bar-chart");
     var compositeLine = dc.compositeChart("#chart");
     var pieChart  = dc.pieChart('#txs-pie-chart');
-    var rowChart = dc.rowChart('#txs-row-chart');
+    // var rowChart = dc.rowChart('#txs-row-chart');
+    var scenariosChart = dc.sunburstChart('#txs-row-chart');
     var avgChart = dc.barChart('#avg-tx-time-chart');
+    var boxChart = dc.boxPlot('#charts-3')
     let first = true; 
 
     var find_query = function () {
@@ -256,13 +259,16 @@ document.addEventListener('DOMContentLoaded', function() {
         let transactions = response["transactions"];
         let scenarios = response["scenarios"];
         let transactionsName = response["transactionsName"];
+        let averages = response["averages"];
         transactions.forEach(function(d){
             d.timestamp = new Date(parseInt(d.timestamp, 10));
         });
         var ndx             = crossfilter(transactions),
-            chartsDimension = ndx.dimension(function(d) {return d.timestamp;}),
+            // all             = ndx.groupAll(),
+            chartsDimension = ndx.dimension(function(d){return d.timestamp;}),
             pieDimension    = ndx.dimension(function(d){return d.scenario;}),
-            rowDimension    = ndx.dimension(function(d){return d.scenario + " - " + d.label;});
+            avgDimension    = ndx.dimension(function(d){if(d.type === "transaction"){return d.scenario + " - " + d.transaction;}else{return d.scenario + " - users";}}),
+            sDimension      = ndx.dimension(function(d){if(d.type === "transaction"){return [d.scenario, d.label];}else{return [d.scenario, "users"];}});
             // rowDimension    = ndx.dimension(function(d){return d.type ;});
         
         pieChart
@@ -272,22 +278,52 @@ document.addEventListener('DOMContentLoaded', function() {
             .innerRadius(40)
             .dimension(pieDimension)
             .group(pieDimension.group())
-            .ordinalColors(vuser_colors);
+            .ordinalColors(primary_colors);
 
-        rowChart
+        scenariosChart
             .width(250)
             .height(250)
-            .dimension(rowDimension)
-            .group(rowDimension.group())
-            // .ordinalColors(txs_colors)
-            .renderLabel(true)
+            .dimension(sDimension)
+            .group(sDimension.group())
+            .colors(d3.scaleOrdinal(corporate_colors));
+
+        avgChart
+            .width(600)
+            .height(450)
+            .margins({top: 45, right: 50, bottom: 85, left: 50})
+            // .xAxisLabel("Transactions")
+            .yAxisLabel('Total Time (sec)')
+            .elasticY(true)
+            .x(d3.scaleBand())
+            .xUnits(dc.units.ordinal)
             .elasticX(true)
-            .xAxis().ticks(4);
+            .brushOn(false)
+            .dimension(avgDimension)
+            .title(function(d){return d.key + ":" + d.value;})
+            .group(avgDimension.group().reduceSum(function(d){
+                if(d.type === "transaction"){
+                    return d.avg_time / averages[d.transaction];
+                }else{
+                    return 0;
+                }
+            }))
+            .colors('#80b8d6')
+            .renderLabel(true);
+        // rowChart
+        //     .width(250)
+        //     .height(250)
+        //     .dimension(rowDimension)
+        //     .group(rowDimension.group())
+        //     .colors('#12abdb')
+        //     .renderLabel(true)
+        //     .elasticX(true)
+        //     .xAxis().ticks(4);
         
         var minDate = chartsDimension.bottom(1)[0].timestamp;
-        var maxDate = chartsDimension.top(1)[0].timestamp;
+        var maxDate = chartsDimension.top(1)[0].timestamp.getTime() + 1*60000;
+        var maxDateLine = chartsDimension.top(1)[0].timestamp;
 
-        var charts = [], bars = [];
+        var charts = [], bars = [], colors = 0;
         scenarios.forEach(function(scenario){
             let usersGroup = chartsDimension.group().reduceSum(function(d){if(d.type === "users" && d.scenario === scenario){return d.num_users;}else{return 0;}});
             charts.push(
@@ -295,14 +331,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 .elasticY(true)
                 .brushOn(false)
                 .group(usersGroup)
+                .colors(corporate_colors[colors])
                 .renderArea(true)
                 .useRightYAxis(true)
+                //.legend(dc.htmlLegend().container('#txs-row-chart').horizontal(false).highlightSelected(true))
             );
+            colors++;
         });
 
+        let color = 0;
         transactionsName.forEach(function(transaction){
             let chartsGroup, barsGroup; 
-            let data = transaction.split(".");
+            let data = transaction.split("$");
             if (data[1] === "Select-all"){
                 chartsGroup = chartsDimension.group().reduceSum(function(d){if(d.type === "transaction" && d.scenario === data[0]){return d.avg_time;}else{return 0;}});
                 barsGroup   = chartsDimension.group().reduceSum(function(d){if(d.type === "transaction" && d.scenario === data[0]){return d.txs_count;}else{return 0;}});
@@ -316,25 +356,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 .curve(d3.curveCatmullRom.alpha(0.5))
                 .brushOn(false)
                 .group(chartsGroup)
+                .colors(corporate_colors[color])
             );
             bars.push(
                 dc.barChart(compositeBar)
                 .elasticY(true)
                 .gap(2)
                 .group(barsGroup)
+                .colors(corporate_colors[color])
             );
-        })
+            color++
+        });
 
-        
-
-        var adjustX = 1.6, adjustY = 3.2;
+        var adjustX = 1.6, adjustY = 2.35;
 
         compositeBar
             .transitionDuration(1000)
             .elasticY(true)
             .width(window.innerWidth/adjustX)
             .height(window.innerHeight/adjustY)
-            .margins({top: 45, right: 50, bottom: 45, left: 50})
+            .margins({top: 45, right: 65, bottom: 45, left: 65})
             .x(d3.scaleTime().domain([minDate,maxDate]))
             .xUnits(d3.timeMinutes)
             .renderHorizontalGridLines(true)
@@ -349,14 +390,15 @@ document.addEventListener('DOMContentLoaded', function() {
             .elasticY(true)       
             .width(window.innerWidth-adjustX)
             .height(window.innerHeight-adjustY)
-            .margins({top: 45, right: 50, bottom: 45, left: 50})
-            .x(d3.scaleTime().domain([minDate,maxDate]))
+            .margins({top: 45, right: 65, bottom: 45, left: 65})
+            .x(d3.scaleTime().domain([minDate,maxDateLine]))
             .xUnits(d3.timeMinutes)
             .renderHorizontalGridLines(true)
             .brushOn(false)
             .mouseZoomable(true)
             .dimension(chartsDimension)
             .rangeChart(compositeBar)
+            .title(function(d){return d.value;})
             .compose(charts)
             .yAxisLabel("elapsed time per transaction (ms)")
             .rightYAxisLabel("Active users")
@@ -365,9 +407,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         apply_resizing(compositeLine, compositeBar, adjustX, adjustY);
         pieChart.render();
-        rowChart.render();
+        scenariosChart.render();
+        // rowChart.render();
         compositeLine.render();
         compositeBar.render();
+        avgChart.render();
         // dc.renderAll();
         //var parseDate = d3.utcParse("%H:%M:%S"); //var parseDate = d3.utcParse("%H:%M:%S");
         /*Habría que aprovechar el bucle en el que se crean los datos...*/ // <--- PARA MEJORAR RENDIMIENTO
@@ -682,22 +726,72 @@ document.addEventListener('DOMContentLoaded', function() {
             //dc.redrawAll();
             let btn = document.getElementById("selectScenarios");
             btn.disabled = false;
-            //btn.innerHTML = "Select";
             btn.classList.remove("running");
         }
 
     }
 
+    function robotListener(){
+        document.getElementById("wheel").remove();
+
+        let response = JSON.parse(this.responseText);
+        let data = response["data"];
+
+        data.forEach(function(d){
+            d.timestamp = new Date(parseInt(d.timestamp, 10));
+        });
+        // console.log(data);
+        let ndx             = crossfilter(data);
+        let bpGenderDim     = ndx.dimension(function (d) {return d.timestamp;});
+        let bpGenderGroup   = bpGenderDim.group().reduce(
+            function (p, v) {
+                // Retrieve the data value, if not Infinity or null add it.
+                let dv = v.avg;
+                if (dv != Infinity && dv != null) p.splice(d3.bisectLeft(p, dv), 0, dv);
+                return p;
+            },
+            function (p, v) {
+                // Retrieve the data value, if not Infinity or null remove it.
+                let dv = v.avg;
+                if (dv != Infinity && dv != null) p.splice(d3.bisectLeft(p, dv), 1);
+                return p;
+            },
+            function () {
+                return [];
+            }
+        );
+
+        boxChart
+            .width(1200)
+            .height(550)
+            .dimension(bpGenderDim)
+            .group(bpGenderGroup)
+            // .tickFormat(d3.format('.1f'))
+            .renderDataPoints(true)
+            .renderTitle(true)
+            .margins({top: 10, right: 50, bottom: 40, left: 50})
+            .dataOpacity(1)
+            .dataWidthPortion(0.9)
+            .yAxisLabel("Avg (ms)")
+            .xAxisLabel("Timestamp", 0)
+            .elasticY(true)
+            .elasticX(true)
+            .xAxis().tickFormat(d3.timeFormat("%H:%M:%S"));
+
+        boxChart.render();
+    }
+
     let app = document.getElementsByClassName("display-4")[0]["childNodes"][0]["data"];
     let escenarios = document.getElementsByClassName("mb-0");
     let lastEscenario = escenarios[escenarios.length - 1]["childNodes"][1]["innerText"].replace(/ /g,'');
-    // console.log(escenarios);
-    // console.log(lastEscenario);
     var request = new XMLHttpRequest();
+    var robot_chart_req = new XMLHttpRequest();
     request.addEventListener("load", reqListener);
-    // request.open("GET", `http://localhost:8000/sgrw/api/${app}/${lastEscenario}`);
-    request.open("GET", `http://localhost:8000/sgrw/api/scenario/search?app=${app}&keys=${lastEscenario}.Select-all`);
+    robot_chart_req.addEventListener("load", robotListener);
+    request.open("GET", `http://${window.location.host}/sgrw/api/scenario/search?app=${app}&keys=${lastEscenario}$Select-all`);
+    robot_chart_req.open("GET", `http://${window.location.host}/sgrw/api/robot_scenario/show?app=${app}`);
     request.send();
+    robot_chart_req.send();
 
     function getCSRFToken() {
         var cookieValue = null;
@@ -716,37 +810,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getSelectedValues(){
         let txs = document.getElementsByClassName("custom-control-input");
-        // let scens = []
         let app = document.getElementsByClassName("display-4")[0]["childNodes"][0]["data"];
-        //let token = document.getElementsByName("csrfmiddlewaretoken");
         // let token = getCSRFToken();
         first = false;
         // var fd = new FormData();
-        let j = 0;
+        let j = false;
         var scenarios = "";
+        let sa = [];
         for(let i=0; i<txs.length; i++){
             if(txs[i].checked){
-                if(j !== 0){
-                    scenarios += ","
+                if(txs[i].id.split("$")[1] === "Select-all"){
+                    sa.push(txs[i].id.split("$")[0]);
+                    if(j){
+                        scenarios += ","
+                    }else{
+                        j = true;
+                    }
+                    scenarios += txs[i].id;
                 }
-                // scens.push(txs[i].id);
-                scenarios += txs[i].id;
-                //fd.append("scenario"+i, scenarios[i].id);
-                j += 1;
+                if(!sa.includes(txs[i].id.split("$")[0])){
+                    if(j){
+                        scenarios += ","
+                    }else{
+                        j = true;
+                    }
+                    scenarios += txs[i].id;
+                }
             }
         }
-        if(j !== 0){
+        if(j){
             let btn = document.getElementById("selectScenarios");
-            //btn.innerHTML = "Loading...";
             btn.disabled = true;
             btn.classList.add("running");
-            console.log(scenarios)
+            // console.log(scenarios);
             var request = new XMLHttpRequest();
             request.addEventListener("load", reqListener);
-            // request.open("GET", `http://localhost:8000/sgrw/api/${app}/${lastEscenario}`);
-            request.open("GET", `http://localhost:8000/sgrw/api/scenario/search?app=${app}&keys=${scenarios}`);
-            //console.log(btn);
-            //btn.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Loading...'
+            request.open("GET", `http://${window.location.host}/sgrw/api/scenario/search?app=${app}&keys=${scenarios}`);
             request.send();
             // var xhr = new XMLHttpRequest();
             // xhr.addEventListener("load", reqListener);
@@ -767,7 +866,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.compositeBar = compositeBar;
     document.compositeLine = compositeLine;
-    document.rowchart = rowChart;
+    document.scenariosChart = scenariosChart;
+    document.avgChart = avgChart;
     document.piechart = pieChart;
     document.getSelectedValues = getSelectedValues;
 });

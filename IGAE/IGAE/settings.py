@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django_elasticsearch_dsl',
+#    'djangosecure',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#    'djangosecure.middleware.SecurityMiddleware',
 ]
 
 ROOT_URLCONF = 'IGAE.urls'
@@ -68,6 +71,14 @@ TEMPLATES = [
         },
     },
 ]
+
+# Search engine
+
+# ELASTICSEARCH_DSL = {
+#     'default': {
+#         'hosts': 'localhost:9200'
+#     },
+# }
 
 WSGI_APPLICATION = 'IGAE.wsgi.application'
 
@@ -136,3 +147,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "IGAE/static"),
 ]
+
+# https enable
+SECURE_SSL_REDIRECT = False
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 400144000 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 400144000 

@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  sgrw_build:
+    image: sgrw_img
+    build: .
+    volumes:
+      - ./IGAE:/usr/SGRW/src
+    ports:
+      - "8000:8000"
+      - "27017:27017"

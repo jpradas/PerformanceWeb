@@ -17,6 +17,7 @@ def app_home(request, user_name, app_name):
             i = 0
             scenarios = list()
             app = user.app_set.get(Name=app_name)
+
             for apps in user.app_set.all():
                 i += 1
             context = {
@@ -30,6 +31,17 @@ def app_home(request, user_name, app_name):
                 scenarios.append(scen)   
             context["scenarios"] = scenarios
             context["numApps"] = i
+            
+            try:
+                msg = request.session['msg']
+            except KeyError:
+                msg = None
+            if msg is not None:
+                context['msg'] = request.session['msg']
+                context["type"] = request.session["type"]
+                del request.session['msg']
+                del request.session["type"]
+
             template = loader.get_template('IGAEapp/app_home.html')
             response = HttpResponse(template.render(context, request)) 
             manage_apps(request, app_name, user_name)

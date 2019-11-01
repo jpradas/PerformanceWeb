@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "py-env\\Scripts\\python.exe",
+    "files.autoSave": "afterDelay"
+}

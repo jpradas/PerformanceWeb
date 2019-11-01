@@ -41,6 +41,7 @@
     background-color: white;
     color: #0070ad;
     border-color: #0070ad;
+    transition-property: background-color, color;
     border-radius: 20px;
 }
 
@@ -73,12 +74,14 @@
     outline: none;
     box-shadow: none !important;
     background-color: white;
-    border: none;
-    border-radius: 20px;
+    border: solid 0.5px;
+    border-color: white;
+    transition-property: border, border-radius;
 }
 
 #reset-btn:hover {
-   background-color: #dee2e6;
+    border: solid 0.5px #0070ad;
+    border-radius: 20px;
 }
 
 .card-header {
@@ -121,42 +124,56 @@
     background-color: white;
     border: solid 0.5px;
     border-color: white;
-    border-radius: 20px;
+    /* border-radius: 20px; */
+    transition-property: border, border-radius;
     outline: none;
     box-shadow: none !important;
 }
 
-.btn.btn-light:active {
-    box-shadow: 0 5px 15px rgba(0,0,0,0);
+.btn.btn-light:hover {
+    /* background-color: #dee2e6; */
+    border: solid 0.5px #0070ad;
+    border-radius: 20px;
 }
 
-.btn.btn-light:hover {
-    background-color: #dee2e6;
+.btn.btn-light:active {
+    box-shadow: 0 5px 15px rgba(0,0,0,0);
+    background-color: #80b8d6;
 }
 
 #accordionscenarios{
-    margin-top: -20px;
+    margin-top: 10px;
 }
 
 #txs-row-chart {
     color: black;
 }
 
-#avg-tx-time-chart.dc-chart .axis.x .tick{
-    opacity: 0.0;
+#avg-tx-time-chart.dc-chart .axis.x text{
+    text-anchor: end !important;
+    /* opacity: 0.0; */
+    transform: rotate(-30deg);
 }
 
 #add_scenario {
     color: #0070ad;
-    margin-left: 25px;
-    margin-top: -10px;
-    transition: border-bottom-color 0.5s;
+    /* margin-left: 20px; */
+    margin-top: 10px;
+    border: solid 0.5px white;
+    padding: 8px;
+    padding-right: 10px;
+    padding-left: 10px;
+    transition-property: border, border-radius;
+    transition-duration: 0.15s;
+    transition-timing-function: linear;
+    text-decoration: none;
 }
 
 #add_scenario:hover {
     text-decoration: none;
-    border-bottom: solid 0.5px;
-    border-bottom-color: #0070ad;
+    border: solid 0.5px #0070ad;
+    border-radius: 20px;
+    /* border-bottom: solid 0.5px; */
 }
 
 #username-to-add {
@@ -189,9 +206,55 @@
     border-radius: 20px;
     color: #0070ad;
     background-color: white;
+    transition: 1s;
 }
 
 #submit-btn:hover {
     color: white;
     background-color: #0070ad;
 }
+
+.custom-control-label {
+    width: 250px;
+    text-overflow: ellipsis;
+}
+
+h6 {
+    /* font-family: Ubuntu; */
+    color: #0070ad;
+    font-size: 20px;
+    font-weight: bolder;
+}
+
+.menu-button {
+    display: none;
+    width: 20px;
+    height: 20px;
+}
+
+.menu-button:active {
+    transform: translate(1px, 1px);
+}
+
+.menu-button img {
+    width: 20px;
+    height: 20px;
+}
+
+.mb-0:hover .menu-button {
+    display: inline-block;
+}
+
+.btn.btn-primary {
+    background-color: white;
+    border: 1px dotted #0070ad;
+    color: #0070ad;
+    transition: border-radius 0.5s;
+}
+
+.btn.btn-primary:hover {
+    background-color: #0070ad;
+    color: white;
+    border-radius: 20px;
+}
+
